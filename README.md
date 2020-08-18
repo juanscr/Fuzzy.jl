@@ -1,7 +1,7 @@
 # Fuzzy EAFIT Fork
 
 Mamdani and Sugeno type Fuzzy Inference System in julia. This code is a fork of
-[Lepisma](https://github.com/phelipe/Fuzzy.jl).
+[Phelipe](https://github.com/phelipe/Fuzzy.jl).
 
 This fork adds some new features and corrects some deprecated functions.
 
