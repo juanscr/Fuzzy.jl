@@ -1,17 +1,11 @@
-# Fuzzy
+# Fuzzy EAFIT fork
 
-Mamdani and Sugeno type Fuzzy Inference System in julia. This code is based in [Lepisma](https://github.com/lepisma/Fuzzy.jl).
+Mamdani and Sugeno type Fuzzy Inference System in julia. This code is a fork of
+[Lepisma](https://github.com/phelipe/Fuzzy.jl).
 
+This fork adds some new features and corrects some deprecated functions.
 
-## Build
-
-[![Build Status](https://travis-ci.org/phelipe/Fuzzy.jl.svg?branch=master)](https://travis-ci.org/phelipe/Fuzzy.jl) [![Coverage Status](https://coveralls.io/repos/phelipe/Fuzzy.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/phelipe/Fuzzy.jl?branch=master) [![codecov.io](http://codecov.io/github/phelipe/Fuzzy.jl/coverage.svg?branch=master)](http://codecov.io/github/phelipe/Fuzzy.jl?branch=master)
-
-## Install
-
-```julia
-pkg> add Fuzzy
-```
+Tested with Julia 1.5.0.
 
 ## QuickStart
 
