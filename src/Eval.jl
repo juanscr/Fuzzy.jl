@@ -78,7 +78,7 @@ function defuzz(firing_strengths::Vector{AbstractFloat}, rules::Vector{Rule},	ou
 
 
 	if defuzz_method == "MOM"
-		max_firing_index = indmax(firing_strengths)
+		max_firing_index = argmax(firing_strengths)
 		max_fired_mf_name = rules[max_firing_index].output_mf
 		output_mfs_dict[max_fired_mf_name].mean_at(maximum(firing_strengths))
 	elseif defuzz_method == "WTAV"
