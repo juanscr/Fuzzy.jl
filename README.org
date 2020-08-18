@@ -1,17 +1,16 @@
-# Fuzzy EAFIT Fork
+* Fuzzy EAFIT Fork
 
 Mamdani and Sugeno type Fuzzy Inference System in julia. This code is a fork of
-[Phelipe](https://github.com/phelipe/Fuzzy.jl).
+[[https://github.com/phelipe/Fuzzy.jl][Phelipe]].
 
 This fork adds some new features and corrects some deprecated functions.
 
-Tested with Julia 1.5.0.
+Tested with ~Julia 1.5.0~.
 
-## QuickStart
-
-```julia
+* QuickStart
+#+begin_src julia
 julia> using Fuzzy
-```
+#+end_src
 
 ### Mamdani FIS
 
