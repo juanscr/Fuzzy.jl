@@ -26,6 +26,7 @@ mutable struct TriangularMF<:MF
 	eval::Function
 	mean_at::Function
 	get_n::Function
+	cut::Function
 
 	function TriangularMF(l_vertex::Real, center::Real, r_vertex::Real)
 
@@ -37,6 +38,11 @@ mutable struct TriangularMF<:MF
 			this.center = center
 			this.r_vertex = r_vertex
 
+			function inv(α)
+				x1 = (this.center - this.l_vertex) * α + this.l_vertex
+				x2 = (this.center - this.r_vertex) * α + this.r_vertex
+				return x1, x2
+			end
 			this.eval = function eval(x)
 				maximum([minimum([((x - this.l_vertex) / (this.center - this.l_vertex)), ((this.r_vertex - x) / (this.r_vertex - this.center))]), 0])
 			end
@@ -53,8 +59,13 @@ mutable struct TriangularMF<:MF
 
 			end
 
-			this.n_opt = function get_n(a, b, tol)
+			this.n_opt = function get_n(tol)
 				return 0
+			end
+
+			this.cut = function cut(α)
+				x1, x2 = inv(α)
+				return CutMF(x1, x2, α, this)
 			end
 
 			this
@@ -92,6 +103,7 @@ mutable struct GaussianMF<:MF
 	eval::Function
 	mean_at::Function
 	get_n::Function
+	cut::Function
 
 	function GaussianMF(center::Real, sigma::Real)
 
@@ -99,6 +111,12 @@ mutable struct GaussianMF<:MF
 
 		this.center = center
 		this.sigma = sigma
+
+		function inv(α)
+			x1 = this.center - this.sigma*sqrt(-2*log(α))
+			x2 = this.center + this.sigma*sqrt(-2*log(α))
+			return x1, x2
+		end
 
 		this.eval = function eval(x)
 			exp( - 0.5 * ((x - this.center) / this.sigma) ^ 2)
@@ -108,14 +126,20 @@ mutable struct GaussianMF<:MF
 			this.center
 		end
 
-		this.get_n = function get_n(a, b, tol)
+		this.get_n = function get_n(tol)
+			l, u = inv(α)
 			c = this.center
 			s = this.sigma
 			sdiff(x) = this.eval(x)*(c^2 - 2*c*x - s^2 + x^2)/s^4
-			xs = collect(a:0.01:b)
+			xs = collect(l:(u-l)/100:u)
 			ys = sdiff.(xs)
 			ym = maximum(abs.(ys)))
 			sqrt((b - a)^3*ym/(12*tol))
+		end
+
+		this.cut = function cut(α)
+			x1, x2 = inv(α)
+			return CutMF(x1, x2, α, this)
 		end
 
 		this
@@ -146,6 +170,7 @@ mutable struct BellMF<:MF
 	eval::Function
 	mean_at::Function
 	get_n::Function
+	cut::Function
 
 	function BellMF(a::Real, b::Real, c::Real)
 
@@ -155,6 +180,11 @@ mutable struct BellMF<:MF
 		this.b = b
 		this.c = c
 
+		function inv(α)
+			x1 = this.c - this.a*((1-α)/α)^(1/(2*b))
+			x2 = this.c + this.a*((1-α)/α)^(1/(2*b))
+			return x1, x2
+		end
 		this.eval = function eval(x)
 			1 / (1 + abs((x - this.c) / this.a) ^ (2 * this.b))
 		end
@@ -163,8 +193,13 @@ mutable struct BellMF<:MF
 			this.c
 		end
 
-		this.get_n = function get_n(a, b, tol)
-			return (b-a)^3/(12*tol)
+		this.get_n = function get_n(tol)
+			l, u = inv(α)
+			return (u-l)^3/(12*tol)
+		end
+		this.cut = function cut(α)
+			x1, x2 = inv(α)
+			return CutMF(x1, x2, α, this)
 		end
 
 		this
@@ -196,6 +231,7 @@ mutable struct TrapezoidalMF<:MF
 	eval::Function
 	mean_at::Function
 	get_n::Function
+	cut::Function
 
 	function TrapezoidalMF(l_bottom_vertex::Real, l_top_vertex::Real, r_top_vertex::Real, r_bottom_vertex::Real)
 
@@ -208,6 +244,12 @@ mutable struct TrapezoidalMF<:MF
 			this.r_top_vertex = r_top_vertex
 			this.r_bottom_vertex = r_bottom_vertex
 
+			function inv(α)
+				x1 = (this.l_top_vertex - this.l_bottom_vertex) * α + this.l_bottom_vertex
+				x2 = (this.r_top_vertex - this.r_bottom_vertex) * α + this.r_bottom_vertex
+				return x1, x2
+			end
+
 			this.eval = function eval(x)
 				maximum([minimum([((x - this.l_bottom_vertex) / (this.l_top_vertex - this.l_bottom_vertex)), 1, ((this.r_bottom_vertex - x) / (this.r_bottom_vertex - this.r_top_vertex))]), 0])
 			end
@@ -218,8 +260,13 @@ mutable struct TrapezoidalMF<:MF
 				(p1 + p2) / 2
 			end
 
-			this.get_n = function get_n(a, b, tol)
+			this.get_n = function get_n(tol)
 				return 0
+			end
+
+			this.cut = function cut(α)
+				x1, x2 = inv(α)
+				return CutMF(x1, x2, α, this)
 			end
 
 			this
@@ -258,6 +305,7 @@ mutable struct SigmoidMF<:MF
 	eval::Function
 	mean_at::Function
 	get_n::Function
+	cut::Function
 
 	function SigmoidMF(a::Real, c::Real, limit::Real)
 
@@ -268,6 +316,10 @@ mutable struct SigmoidMF<:MF
 			this.a = a
 			this.c = c
 			this.limit = limit
+
+			function inv(α)
+				return this.c - (1/this.a)*log((1-α)/α)
+			end
 
 			this.eval = function eval(x)
 				1 / (1 + exp(-this.a * (x - this.c)))
@@ -289,16 +341,35 @@ mutable struct SigmoidMF<:MF
 
 			end
 
-			this.get_n = function get_n(a, b, tol)
+			this.get_n = function get_n(tol)
 				a = this.a
 				c = this.c
+				if a > 0
+					u = this.limit
+					l = inv(0.01)
+				else
+					l = this.limit
+					u = inv(0.01)
+				end
 				aux1(x) = exp(-a*(x-c))
 				aux2(x) = 2*a^2*(aux(x))^2/(aux(x) + 1)^3
 				sdiff(x) = aux1(x) - a^2*aux(x)/(aux(x) + 1)^2
-				xs = collect(a:0.01:b)
+				xs = collect(l:(u-l)/100:u)
 				ys = sdiff.(xs)
 				ym = maximum(abs.(ys)))
-				sqrt((b - a)^3*ym/(12*tol))
+				sqrt((u - l)^3*ym/(12*tol))
+			end
+
+			this.cut = function cut(α)
+				x = inv(α)
+				if this.a > 0
+					x1 = x
+					x2 = this.limit
+				else
+					x1 = this.limit
+					x2 = x
+				end
+				return CutMF(x1, x2, α, this)
 			end
 
 			this
@@ -313,10 +384,9 @@ mutable struct SigmoidMF<:MF
 end
 
 """
-	NNNNNNNNNNNNNNNNNNNNNNNNNNNNN
-	Generalised Bell membership function type
+	Cut MF
 
-	BellMF(a, b, c)
+	CutMF(a, b, c)
 
 	 Properties
 	 ----------
@@ -335,6 +405,7 @@ mutable struct CutMF<:MF
 
 	eval::Function
 	mean_at::Function
+	cut::Function
 
 	function CutMF(x1::Real, x2::Real, α::Real, toCutMF::MF)
 
@@ -361,8 +432,16 @@ mutable struct CutMF<:MF
 			end
 		end
 
-		this.get_n = function get_n(a, b, tol)
-			return this.toCutMF.get_n(a, b, tol)
+		this.get_n = function get_n(tol)
+			return this.toCutMF.get_n(tol)
+		end
+
+		this.cut = function cut(α)
+			if α >= this.α
+				return this
+			else
+				return this.toCutMF.cut(α)
+			end
 		end
 
 		this
