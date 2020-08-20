@@ -73,10 +73,15 @@ end
 	 `defuzz_method` is the method for defuzzification
 	 		"MOM" - Mean of Maximum
 	 		"WTAV" - Weighted Average
+			"COG" - Center of Gravity
 """
-function defuzz(firing_strengths::Vector{AbstractFloat}, rules::Vector{Rule},	output_mfs_dict::Dict{AbstractString, MF}, defuzz_method::AbstractString)
 
+include("Utils.jl")
 
+function defuzz(firing_strengths::Vector{AbstractFloat}, fis::FISMamdani, defuzz_method::AbstractString)
+	rules = fis.rules
+	output_mfs_dict = fis.output_mfs_dict
+	domain = fis.output_domain
 	if defuzz_method == "MOM"
 		max_firing_index = argmax(firing_strengths)
 		max_fired_mf_name = rules[max_firing_index].output_mf
@@ -87,6 +92,15 @@ function defuzz(firing_strengths::Vector{AbstractFloat}, rules::Vector{Rule},	ou
 			push!(mean_vec, output_mfs_dict[rules[i].output_mf].mean_at(firing_strengths[i]))
 		end
 		(mean_vec' * firing_strengths)[1] / sum(firing_strengths)
+	elseif defuzz_method == "COG"
+		cutted = []
+		for i in 1:length(rules)
+			push!(cutted, rules[i].cut(firing_strengths[i]))
+		end
+		agg(x) = maximum(map(y -> y.eval(x), cutted))
+		agg_aux(x) = x*agg(x)
+		n = sum(map(y -> y.get_n(1e-5), cutted))
+		return trapz(agg_aux, domain[1], domain[2], n)/trapz(agg, domain[1], domain[2], n)
 	end
 
 end
