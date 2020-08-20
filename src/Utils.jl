@@ -11,7 +11,7 @@
      `n` number of partition of [a,b]
 """
 
-function trapz(f, a, b, n):
+function trapz(f, a, b, n)
     h = (b - a)/n
     integral = f(a) + f(b)
     i = 1
