@@ -293,49 +293,6 @@ mutable struct SigmoidMF<:MF
 end
 
 """
- Gaussian membership function type
-
-	GaussianMF(center, sigma)
-
-	 Properties
-	 ----------
-	 `center` is the center of the distribution
-	 `sigma` determines width of the distribution
-
-	 `eval` function returns membership value at a point
-	 `mean_at` function returns mean value at line clipped by given firing strength
-
-"""
-mutable struct GaussianMF<:MF
-
-	center::Real
-	sigma::Real
-
-	eval::Function
-	mean_at::Function
-
-	function GaussianMF(center::Real, sigma::Real)
-
-		this = new()
-
-		this.center = center
-		this.sigma = sigma
-
-		this.eval = function eval(x)
-			exp( - 0.5 * ((x - this.center) / this.sigma) ^ 2)
-		end
-
-		this.mean_at = function mean_at(firing_strength)
-			this.center
-		end
-
-		this
-
-	end
-
-end
-
-"""
 	NNNNNNNNNNNNNNNNNNNNNNNNNNNNN
 	Generalised Bell membership function type
 
