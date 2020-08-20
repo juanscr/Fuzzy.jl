@@ -25,6 +25,7 @@ mutable struct TriangularMF<:MF
 
 	eval::Function
 	mean_at::Function
+	get_n::Function
 
 	function TriangularMF(l_vertex::Real, center::Real, r_vertex::Real)
 
@@ -50,6 +51,10 @@ mutable struct TriangularMF<:MF
 					return this.center
 				end
 
+			end
+
+			this.n_opt = function get_n(a, b, tol)
+				return 0
 			end
 
 			this
@@ -86,6 +91,7 @@ mutable struct GaussianMF<:MF
 
 	eval::Function
 	mean_at::Function
+	get_n::Function
 
 	function GaussianMF(center::Real, sigma::Real)
 
@@ -100,6 +106,18 @@ mutable struct GaussianMF<:MF
 
 		this.mean_at = function mean_at(firing_strength)
 			this.center
+		end
+
+		this.get_n = function get_n(a, b, tol)
+			c = this.center
+			s = this.sigma
+			sdiff(x) = this.eval(x)*(c^2 - 2*c*x - s^2 + x^2)/s^4
+			xs = collect(a:100:b)
+			ys = sdiff.(xs)
+			im = argmax(abs.(ys))
+			ym = ys[im]
+			xm = a + (b - a)/100*im
+			sqrt((b - a)**3*abs(ym)/(12*tol))
 		end
 
 		this
@@ -354,7 +372,7 @@ mutable struct CutMF<:MF
 			if x1 <= x <= x2
 				return this.α
 			else
-				rturn this.toCutMF.eval(x)
+				return this.toCutMF.eval(x)
 			end
 		end
 
