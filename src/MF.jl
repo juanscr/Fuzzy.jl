@@ -273,3 +273,100 @@ mutable struct SigmoidMF<:MF
 	end
 
 end
+
+"""
+ Gaussian membership function type
+
+	GaussianMF(center, sigma)
+
+	 Properties
+	 ----------
+	 `center` is the center of the distribution
+	 `sigma` determines width of the distribution
+
+	 `eval` function returns membership value at a point
+	 `mean_at` function returns mean value at line clipped by given firing strength
+
+"""
+mutable struct GaussianMF<:MF
+
+	center::Real
+	sigma::Real
+
+	eval::Function
+	mean_at::Function
+
+	function GaussianMF(center::Real, sigma::Real)
+
+		this = new()
+
+		this.center = center
+		this.sigma = sigma
+
+		this.eval = function eval(x)
+			exp( - 0.5 * ((x - this.center) / this.sigma) ^ 2)
+		end
+
+		this.mean_at = function mean_at(firing_strength)
+			this.center
+		end
+
+		this
+
+	end
+
+end
+
+"""
+	NNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+	Generalised Bell membership function type
+
+	BellMF(a, b, c)
+
+	 Properties
+	 ----------
+	 `a`, `b` and `c` the usual bell parameters with `c` being the center
+
+	 `eval` function returns membership value at a point
+	 `mean_at` function returns mean value at line clipped by given firing strength
+
+"""
+mutable struct CutMF<:MF
+
+	x1::Real
+	x2::Real
+	α::Real
+	toCutMF::MF
+
+	eval::Function
+	mean_at::Function
+
+	function CutMF(x1::Real, x2::Real, α::Real, toCutMF::MF)
+
+		this = new()
+
+		this.x1 = x1
+		this.x2 = x2
+		this.α = α
+		this.toCutMF = toCutMF
+
+		this.eval = function eval(x)
+			if x1 <= x <= x2
+				return this.α
+			else
+				rturn this.toCutMF.eval(x)
+			end
+		end
+
+		this.mean_at = function mean_at(firing_strength)
+			if firing_strength >= α
+				return this.toCutMF.mean_at(α)
+			else
+				return this.toCutMF.mean_at(firing_strength)
+		end
+
+		this
+
+	end
+
+end
