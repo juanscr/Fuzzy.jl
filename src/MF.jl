@@ -117,7 +117,7 @@ mutable struct GaussianMF<:MF
 			im = argmax(abs.(ys))
 			ym = ys[im]
 			xm = a + (b - a)/100*im
-			sqrt((b - a)**3*abs(ym)/(12*tol))
+			sqrt((b - a)^3*abs(ym)/(12*tol))
 		end
 
 		this
