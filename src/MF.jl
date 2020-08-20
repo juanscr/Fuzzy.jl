@@ -405,6 +405,7 @@ mutable struct CutMF<:MF
 
 	eval::Function
 	mean_at::Function
+	get_n::Function
 	cut::Function
 
 	function CutMF(x1::Real, x2::Real, α::Real, toCutMF::MF)
