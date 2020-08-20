@@ -337,6 +337,7 @@ mutable struct CutMF<:MF
 				return this.toCutMF.mean_at(α)
 			else
 				return this.toCutMF.mean_at(firing_strength)
+			end
 		end
 
 		this
