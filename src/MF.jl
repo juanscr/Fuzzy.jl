@@ -290,58 +290,57 @@ mutable struct SigmoidMF<:MF
 
 	end
 
-end
+	"""
+		NNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+		Generalised Bell membership function type
 
-"""
-	NNNNNNNNNNNNNNNNNNNNNNNNNNNNN
-	Generalised Bell membership function type
+		BellMF(a, b, c)
 
-	BellMF(a, b, c)
+		 Properties
+		 ----------
+		 `a`, `b` and `c` the usual bell parameters with `c` being the center
 
-	 Properties
-	 ----------
-	 `a`, `b` and `c` the usual bell parameters with `c` being the center
+		 `eval` function returns membership value at a point
+		 `mean_at` function returns mean value at line clipped by given firing strength
 
-	 `eval` function returns membership value at a point
-	 `mean_at` function returns mean value at line clipped by given firing strength
+	"""
+	mutable struct CutMF<:MF
 
-"""
-mutable struct CutMF<:MF
+		x1::Real
+		x2::Real
+		α::Real
+		toCutMF::MF
 
-	x1::Real
-	x2::Real
-	α::Real
-	toCutMF::MF
+		eval::Function
+		mean_at::Function
 
-	eval::Function
-	mean_at::Function
+		function CutMF(x1::Real, x2::Real, α::Real, toCutMF::MF)
 
-	function CutMF(x1::Real, x2::Real, α::Real, toCutMF::MF)
+			this = new()
 
-		this = new()
+			this.x1 = x1
+			this.x2 = x2
+			this.α = α
+			this.toCutMF = toCutMF
 
-		this.x1 = x1
-		this.x2 = x2
-		this.α = α
-		this.toCutMF = toCutMF
-
-		this.eval = function eval(x)
-			if x1 <= x <= x2
-				return this.α
-			else
-				return this.toCutMF.eval(x)
+			this.eval = function eval(x)
+				if x1 <= x <= x2
+					return this.α
+				else
+					return this.toCutMF.eval(x)
+				end
 			end
-		end
 
-		this.mean_at = function mean_at(firing_strength)
-			if firing_strength >= α
-				return this.toCutMF.mean_at(α)
-			else
-				return this.toCutMF.mean_at(firing_strength)
-		end
+			this.mean_at = function mean_at(firing_strength)
+				if firing_strength >= α
+					return this.toCutMF.mean_at(α)
+				else
+					return this.toCutMF.mean_at(firing_strength)
+			end
 
-		this
+			this
+
+		end
 
 	end
-
 end
