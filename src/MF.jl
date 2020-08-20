@@ -127,7 +127,7 @@ mutable struct GaussianMF<:MF
 		end
 
 		this.get_n = function get_n(tol)
-			l, u = inv(α)
+			l, u = inv(0.01)
 			c = this.center
 			s = this.sigma
 			sdiff(x) = this.eval(x)*(c^2 - 2*c*x - s^2 + x^2)/s^4
