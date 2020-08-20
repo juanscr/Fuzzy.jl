@@ -22,7 +22,7 @@ function eval_fis(fis::FISMamdani, input_values::Vector{<:AbstractFloat},defuzz_
 		end
 			push!(firing_strengths, firing(tmp_strengths,rule.firing_method ))
 	end
-	defuzz(firing_strengths, fis.rules, fis.output_mfs_dict, defuzz_method)
+	defuzz(firing_strengths, fis, defuzz_method)
 
 end
 
