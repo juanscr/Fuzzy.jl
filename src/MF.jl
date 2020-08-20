@@ -133,7 +133,7 @@ mutable struct GaussianMF<:MF
 			sdiff(x) = this.eval(x)*(c^2 - 2*c*x - s^2 + x^2)/s^4
 			xs = collect(l:(u-l)/100:u)
 			ys = sdiff.(xs)
-			ym = maximum(abs.(ys)))
+			ym = maximum(abs.(ys))
 			sqrt((b - a)^3*ym/(12*tol))
 		end
 
@@ -356,7 +356,7 @@ mutable struct SigmoidMF<:MF
 				sdiff(x) = aux1(x) - a^2*aux(x)/(aux(x) + 1)^2
 				xs = collect(l:(u-l)/100:u)
 				ys = sdiff.(xs)
-				ym = maximum(abs.(ys)))
+				ym = maximum(abs.(ys))
 				sqrt((u - l)^3*ym/(12*tol))
 			end
 
