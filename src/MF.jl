@@ -352,8 +352,8 @@ mutable struct SigmoidMF<:MF
 					u = inv(0.01)
 				end
 				aux1(x) = exp(-a*(x-c))
-				aux2(x) = 2*a^2*(aux(x))^2/(aux(x) + 1)^3
-				sdiff(x) = aux1(x) - a^2*aux(x)/(aux(x) + 1)^2
+				aux2(x) = 2*a^2*(aux1(x))^2/(aux1(x) + 1)^3
+				sdiff(x) = aux2(x) - a^2*aux1(x)/(aux1(x) + 1)^2
 				xs = collect(l:(u-l)/100:u)
 				ys = sdiff.(xs)
 				ym = maximum(abs.(ys))
