@@ -95,7 +95,7 @@ function defuzz(firing_strengths::Vector{AbstractFloat}, fis::FISMamdani, defuzz
 	elseif defuzz_method == "COG"
 		cutted = []
 		for i in 1:length(rules)
-			push!(cutted, rules[i].cut(firing_strengths[i]))
+			push!(cutted, output_mfs_dict[rules[i].output_mf].cut(firing_strengths[i]))
 		end
 		agg(x) = maximum(map(y -> y.eval(x), cutted))
 		agg_aux(x) = x*agg(x)
