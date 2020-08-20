@@ -112,12 +112,10 @@ mutable struct GaussianMF<:MF
 			c = this.center
 			s = this.sigma
 			sdiff(x) = this.eval(x)*(c^2 - 2*c*x - s^2 + x^2)/s^4
-			xs = collect(a:100:b)
+			xs = collect(a:0.01:b)
 			ys = sdiff.(xs)
-			im = argmax(abs.(ys))
-			ym = ys[im]
-			xm = a + (b - a)/100*im
-			sqrt((b - a)^3*abs(ym)/(12*tol))
+			ym = maximum(abs.(ys)))
+			sqrt((b - a)^3*ym/(12*tol))
 		end
 
 		this
@@ -147,6 +145,7 @@ mutable struct BellMF<:MF
 
 	eval::Function
 	mean_at::Function
+	get_n::Function
 
 	function BellMF(a::Real, b::Real, c::Real)
 
@@ -162,6 +161,10 @@ mutable struct BellMF<:MF
 
 		this.mean_at = function mean_at(firing_strength)
 			this.c
+		end
+
+		this.get_n = function get_n(a, b, tol)
+			return (b-a)^3/(12*tol)
 		end
 
 		this
@@ -192,6 +195,7 @@ mutable struct TrapezoidalMF<:MF
 
 	eval::Function
 	mean_at::Function
+	get_n::Function
 
 	function TrapezoidalMF(l_bottom_vertex::Real, l_top_vertex::Real, r_top_vertex::Real, r_bottom_vertex::Real)
 
@@ -212,6 +216,10 @@ mutable struct TrapezoidalMF<:MF
 				p1 = (this.l_top_vertex - this.l_bottom_vertex) * firing_strength + this.l_bottom_vertex
 				p2 = (this.r_top_vertex - this.r_bottom_vertex) * firing_strength + this.r_bottom_vertex
 				(p1 + p2) / 2
+			end
+
+			this.get_n = function get_n(a, b, tol)
+				return 0
 			end
 
 			this
@@ -249,6 +257,7 @@ mutable struct SigmoidMF<:MF
 
 	eval::Function
 	mean_at::Function
+	get_n::Function
 
 	function SigmoidMF(a::Real, c::Real, limit::Real)
 
@@ -278,6 +287,18 @@ mutable struct SigmoidMF<:MF
 				p2 = this.limit
 				(p1 + p2) / 2
 
+			end
+
+			this.get_n = function get_n(a, b, tol)
+				a = this.a
+				c = this.c
+				aux1(x) = exp(-a*(x-c))
+				aux2(x) = 2*a^2*(aux(x))^2/(aux(x) + 1)^3
+				sdiff(x) = aux1(x) - a^2*aux(x)/(aux(x) + 1)^2
+				xs = collect(a:0.01:b)
+				ys = sdiff.(xs)
+				ym = maximum(abs.(ys)))
+				sqrt((b - a)^3*ym/(12*tol))
 			end
 
 			this
@@ -338,6 +359,10 @@ mutable struct CutMF<:MF
 			else
 				return this.toCutMF.mean_at(firing_strength)
 			end
+		end
+
+		this.get_n = function get_n(a, b, tol)
+			return this.toCutMF.get_n(a, b, tol)
 		end
 
 		this
