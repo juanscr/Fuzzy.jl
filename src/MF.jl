@@ -134,7 +134,7 @@ mutable struct GaussianMF<:MF
 			xs = collect(l:(u-l)/100:u)
 			ys = sdiff.(xs)
 			ym = maximum(abs.(ys))
-			sqrt((b - a)^3*ym/(12*tol))
+			sqrt((u - l)^3*ym/(12*tol))
 		end
 
 		this.cut = function cut(α)
