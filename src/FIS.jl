@@ -31,11 +31,13 @@ end
 	# `output_mfs_dict` is a Dict containing membership function of output associated with names
 	# 		e.g. "small" => GaussianMF(4, 2)
 	# `rules` is a Vector of Rule that form the inference system
+	# `output_domain` Discourse universe for the output
 '''
-struct FISMamdani
+struct FISMamdani<:FIS
 	input_mfs_dicts::Vector{Dict{AbstractString, MF}}
 	output_mfs_dict::Dict{AbstractString,MF}
 	rules::Vector{Rule}
+	output_domain::Tuple{Real,Real}
 end
 
 '''
@@ -48,7 +50,7 @@ end
 	# 		e.g. "small" => TriangularMF(1, 2, 3)
 	# `rules` is a Vector of Rule (of sugeno type) that form the inference system
 '''
-struct FISSugeno
+struct FISSugeno<:FIS
 	input_mfs_dicts::Vector{Dict{AbstractString, MF}}
 	rules::Vector{Rule}
 end
